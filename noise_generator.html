@@ -99,6 +99,11 @@
             /* Adjust this width to fit your design */
             text-align: center;
             /* Center the text inside the button */
+            white-space: nowrap; /* Prevent text inside buttons from wrapping */
+    overflow: hidden; /* Hide overflow */
+    text-overflow: ellipsis; /* Add an ellipsis if text is too long */
+    margin: 5px 5px; /* Ensure there's space between buttons */
+
         }
 
         button:hover,
@@ -135,6 +140,7 @@
             /* Light border for the label */
             border-radius: 4px;
             margin-right: 5px;
+            margin-bottom: 7px;
             /* Space between labels */
             cursor: pointer;
             /* Set the width to match the buttons and prevent size change */
