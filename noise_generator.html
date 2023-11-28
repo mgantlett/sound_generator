@@ -18,6 +18,7 @@
             display: flex;
             justify-content: space-between;
             flex-wrap: nowrap;
+            padding-bottom: 15px;
         }
 
         .slider-container {
@@ -31,8 +32,9 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            padding: 20px;
-            width: 30px;
+            padding-top: 20px;
+            padding-bottom: 20px;
+            min-width: 105px;
             border: 1px solid #333;
 
         }
@@ -43,13 +45,17 @@
             width: 100%;
             margin-bottom: 5px;
             order: -1;
+            white-space: nowrap;
+            overflow: hidden;
+            /* Prevents the content from overflowing */
+            text-overflow: ellipsis;
+            /* Adds an ellipsis to indicate hidden overflow content */
         }
 
         .noUi-base {
             height: 100%;
             width: 100%;
-            background-color: darkgrey; /* Default "unused" portion color */
-
+            background-color: darkgrey;
         }
 
         .noUi-marker {
@@ -66,12 +72,13 @@
 
         .noUi-tooltip {
             padding: 1px;
-        }
-
-        .noUi-tooltip {
             left: 100%;
             top: -10px;
             transform: translate(10px, -50%);
+        }
+
+        .noUi-value {
+            display: none;
         }
 
         button {
@@ -147,11 +154,11 @@
             saveSettings();
         }
         function setSliderValue(index, value) {
-    var sliderElement = document.getElementById('slider' + index);
-    if (sliderElement && sliderElement.noUiSlider) {
-        sliderElement.noUiSlider.set(value); // Set the value without removing the event listener
-    }
-}
+            var sliderElement = document.getElementById('slider' + index);
+            if (sliderElement && sliderElement.noUiSlider) {
+                sliderElement.noUiSlider.set(value); // Set the value without removing the event listener
+            }
+        }
 
 
         function noUiSliderUpdateHandler(index) {
