@@ -5,11 +5,10 @@
     <title>White Noise Generator with Filters and Controls v0.6.1</title>
     <link href="https://cdn.jsdelivr.net/npm/nouislider/distribute/nouislider.min.css" rel="stylesheet">
     <style>
-        /* Style definitions */
         body {
             background-color: #000;
             color: #fff;
-            font-family: Arial, sans-serif;
+            font-family: monospace;
             text-align: center;
             margin: 0;
             padding: 30px;
@@ -18,7 +17,6 @@
         #controls {
             display: flex;
             justify-content: space-between;
-            /* This will space out the child elements evenly */
             flex-wrap: nowrap;
         }
 
@@ -32,24 +30,26 @@
             flex: 1;
             display: flex;
             flex-direction: column;
-            align-items: flex-end;
-            margin: 20px;
+            align-items: center;
+            padding: 20px;
             width: 30px;
+            border: 1px solid #333;
 
         }
 
         .slider-wrapper label {
             align-self: flex-start;
-            text-align: right;
+            text-align: center;
             width: 100%;
             margin-bottom: 5px;
             order: -1;
         }
 
-
         .noUi-base {
             height: 100%;
             width: 100%;
+            background-color: darkgrey; /* Default "unused" portion color */
+
         }
 
         .noUi-marker {
@@ -59,20 +59,20 @@
         .noUi-handle {
             cursor: pointer;
             border: 2px solid #333;
-            /* Darker border for contrast */
             box-shadow: 0 0 5px 0 rgba(0, 0, 0, 0.6);
-            /* Add shadow for depth */
             background-color: #bdbdbd;
-            /* Light background */
             border-radius: 8px;
-            /* Adjust this value to round the corners as desired */
         }
 
         .noUi-tooltip {
             padding: 1px;
-            /* Use a smaller value to reduce whitespace */
         }
 
+        .noUi-tooltip {
+            left: 100%;
+            top: -10px;
+            transform: translate(10px, -50%);
+        }
 
         button {
             font-size: 1.2em;
@@ -109,6 +109,18 @@
             [632, 1261], [1261, 2517], [2517, 5023], [5023, 10023], [10023, 20000]
         ];
         var settings = JSON.parse(localStorage.getItem('noiseSettings')) || { white: [], pink: [], brown: [] };
+        var colors = [
+            "#8B0000", // Deep Red
+            "#FF4500", // Red-Orange
+            "#FFA500", // Orange
+            "#FFD700", // Gold-Yellow
+            "#FFFF00", // Light Yellow
+            "#ADFF2F", // Light Green
+            "#7FFFD4", // Aquamarine
+            "#87CEEB", // Sky Blue
+            "#4169E1", // Royal Blue
+            "#8A2BE2"  // Violet
+        ];
 
         document.querySelectorAll('input[name="noiseType"]').forEach(function (radio) {
             radio.addEventListener('change', function () {
@@ -120,40 +132,115 @@
             });
         });
 
-        function createBandpassFilter(lowFreq, highFreq) {
-            var filter = context.createBiquadFilter();
-            filter.type = 'bandpass';
-            filter.frequency.value = (lowFreq + highFreq) / 2;
-            filter.Q.value = filter.frequency.value / (highFreq - lowFreq);
-            return filter;
+        function resetBands(value) {
+            for (var i = 0; i < frequencyBands.length; i++) {
+                setSliderValue(i, value);
+            }
+            saveSettings();
         }
 
-        function toggleAudio() {
-            if (!context) {
-                context = new AudioContext();
+        function adjustBands(delta) {
+            for (var i = 0; i < frequencyBands.length; i++) {
+                var currentValue = gainNodes[i] ? gainNodes[i].gain.value : 0.5;
+                setSliderValue(i, Math.max(0, Math.min(1, currentValue + delta)));
             }
+            saveSettings();
+        }
+        function setSliderValue(index, value) {
+    var sliderElement = document.getElementById('slider' + index);
+    if (sliderElement && sliderElement.noUiSlider) {
+        sliderElement.noUiSlider.set(value); // Set the value without removing the event listener
+    }
+}
 
-            var buttons = document.querySelectorAll('button:not(#audioButton)'); // Select all buttons except for the audio button
-            if (!isPlaying) {
-                playNoise();
-                document.getElementById("audioButton").innerText = "Stop Audio";
-                isPlaying = true;
-                // Enable other buttons
-                buttons.forEach(function (button) {
-                    button.disabled = false;
-                });
-            } else {
-                stopNoise();
-                document.getElementById("audioButton").innerText = "Initialize Audio";
-                isPlaying = false;
-                // Disable other buttons
-                buttons.forEach(function (button) {
-                    button.disabled = true;
-                });
-            }
+
+        function noUiSliderUpdateHandler(index) {
+            return function (values, handle) {
+                var value = parseFloat(values[handle]);
+                if (gainNodes[index]) {
+                    gainNodes[index].gain.value = value;
+                }
+            };
         }
 
+        frequencyBands.forEach(function (band, index) {
+            // Container for both the label and the slider
+            var sliderWrapper = document.createElement('div');
+            sliderWrapper.className = 'slider-wrapper';
+            sliderWrapper.style.textAlign = 'center'; // Center align the label text
 
+            // Create a label for each frequency band
+            var label = document.createElement('label');
+            label.innerHTML = band[0] + '-' + band[1] + 'Hz';
+            label.style.color = colors[index];
+            label.style.marginBottom = '10px'; // Add space below the label
+
+            // Append the label to the wrapper
+            sliderWrapper.appendChild(label);
+
+            // Create the value indicator element
+            var valueIndicator = document.createElement('span');
+            valueIndicator.id = 'value-indicator-' + index;
+            valueIndicator.className = 'value-indicator';
+            valueIndicator.textContent = '0.00'; // Default value
+            valueIndicator.style.color = colors[index];
+            sliderWrapper.appendChild(valueIndicator);
+
+            // Create the slider container and append it to the wrapper
+            var container = document.createElement('div');
+            container.className = 'slider-container';
+            container.id = 'slider' + index;
+            sliderWrapper.appendChild(container);
+
+            // Append the whole wrapper to the controls container
+            document.getElementById('controls').appendChild(sliderWrapper);
+
+            noUiSlider.create(container, {
+                start: settings[currentNoiseType][index] !== undefined ? settings[currentNoiseType][index] : 0.5,
+                orientation: 'vertical',
+                direction: 'rtl',
+                range: {
+                    'min': 0,
+                    'max': 1
+                },
+                pips: {
+                    mode: 'steps',
+                    density: 5, // Adjust density for more or fewer tick marks
+
+                },
+                connect: [true, false], // Color the lower part of the slider
+                tooltips: false, // Enable tooltips to display the current value
+                format: {
+                    to: function (value) {
+                        return value.toFixed(2);
+                    },
+                    from: function (value) {
+                        return Number(value);
+                    }
+                }
+            });
+
+            // Set the color of the entire slider track
+            container.noUiSlider.on('update', function (values, handle, unencoded, isTap, positions) {
+                var value = parseFloat(values[handle]);
+                valueIndicator.textContent = value.toFixed(2);
+
+                if (gainNodes[index]) {
+                    gainNodes[index].gain.value = value;
+                }
+                var connectBar = this.target.querySelector('.noUi-connect');
+                var base = this.target.querySelector('.noUi-base');
+
+                if (connectBar) {
+                    connectBar.style.backgroundColor = colors[index]; // This sets the "used" portion
+                }
+            });
+
+            // Save settings when the slider value changes
+            container.noUiSlider.on('change', function (values, handle) {
+                saveSettings();
+            });
+        });
 
         function playNoise() {
             if (!noiseProcessor || noiseProcessor.context.state === 'closed') {
@@ -172,7 +259,7 @@
                 }
             };
 
-            setupGainNodes(); // Set up or re-establish the connections with gain nodes
+            setupGainNodes();
         }
 
         function setupGainNodes() {
@@ -232,33 +319,30 @@
             }
         }
 
-        function resetBands(value) {
-            for (var i = 0; i < frequencyBands.length; i++) {
-                setSliderValue(i, value);
+        function toggleAudio() {
+            if (!context) {
+                context = new AudioContext();
             }
-            saveSettings();
-        }
 
-        function adjustBands(delta) {
-            for (var i = 0; i < frequencyBands.length; i++) {
-                var currentValue = gainNodes[i] ? gainNodes[i].gain.value : 0.5;
-                setSliderValue(i, Math.max(0, Math.min(1, currentValue + delta)));
+            var buttons = document.querySelectorAll('button:not(#audioButton)');
+            if (!isPlaying) {
+                playNoise();
+                document.getElementById("audioButton").innerText = "Stop Audio";
+                isPlaying = true;
+
+                buttons.forEach(function (button) {
+                    button.disabled = false;
+                });
+            } else {
+                stopNoise();
+                document.getElementById("audioButton").innerText = "Initialize Audio";
+                isPlaying = false;
+
+                buttons.forEach(function (button) {
+                    button.disabled = true;
+                });
             }
-            saveSettings();
         }
-        var colors = [
-            "#8B0000", // Deep Red
-            "#FF4500", // Red-Orange
-            "#FFA500", // Orange
-            "#FFD700", // Gold-Yellow
-            "#FFFF00", // Light Yellow
-            "#ADFF2F", // Light Green
-            "#7FFFD4", // Aquamarine
-            "#87CEEB", // Sky Blue
-            "#4169E1", // Royal Blue
-            "#8A2BE2"  // Violet
-        ];
-
 
         function saveSettings() {
             var currentSettings = settings[currentNoiseType] || [];
@@ -272,7 +356,6 @@
             localStorage.setItem('noiseSettings', JSON.stringify(settings));
         }
 
-
         function loadSettings() {
             var savedSettings = settings[currentNoiseType];
             if (savedSettings) {
@@ -285,104 +368,14 @@
             }
         }
 
-
-        function setSliderValue(index, value) {
-            var sliderElement = document.getElementById('slider' + index);
-            if (sliderElement && sliderElement.noUiSlider) {
-                // Temporarily remove the event listener to avoid triggering it
-                sliderElement.noUiSlider.off('update');
-                sliderElement.noUiSlider.set(value);
-                // Re-attach the event listener
-                sliderElement.noUiSlider.on('update', noUiSliderUpdateHandler(index));
-            }
+        function createBandpassFilter(lowFreq, highFreq) {
+            var filter = context.createBiquadFilter();
+            filter.type = 'bandpass';
+            filter.frequency.value = (lowFreq + highFreq) / 2;
+            filter.Q.value = filter.frequency.value / (highFreq - lowFreq);
+            return filter;
         }
 
-        function noUiSliderUpdateHandler(index) {
-            return function (values, handle) {
-                var value = parseFloat(values[handle]);
-                if (gainNodes[index]) {
-                    gainNodes[index].gain.value = value;
-                }
-            };
-        }
-
-        frequencyBands.forEach(function (band, index) {
-            // Container for both the label and the slider
-            var sliderWrapper = document.createElement('div');
-            sliderWrapper.className = 'slider-wrapper';
-            sliderWrapper.style.textAlign = 'center'; // Center align the label text
-
-            // Create a label for each frequency band
-            var label = document.createElement('label');
-            label.innerHTML = band[0] + '-<br>' + band[1] + '<br>Hz';
-            label.style.color = colors[index];
-            label.style.marginBottom = '10px'; // Add space below the label
-
-            // Append the label to the wrapper
-            sliderWrapper.appendChild(label);
-
-            // Create the slider container and append it to the wrapper
-            var container = document.createElement('div');
-            container.className = 'slider-container';
-            container.id = 'slider' + index;
-            sliderWrapper.appendChild(container);
-
-            // Append the whole wrapper to the controls container
-            document.getElementById('controls').appendChild(sliderWrapper);
-
-            noUiSlider.create(container, {
-                start: settings[currentNoiseType][index] !== undefined ? settings[currentNoiseType][index] : 0.5,
-                orientation: 'vertical',
-                direction: 'rtl',
-                range: {
-                    'min': 0,
-                    'max': 1
-                },
-                pips: {
-                    mode: 'steps',
-                    density: 5, // Adjust density for more or fewer tick marks
-
-                },
-                connect: [true, false], // Color the lower part of the slider
-                tooltips: true, // Enable tooltips to display the current value
-                format: {
-                    to: function (value) {
-                        return value.toFixed(2);
-                    },
-                    from: function (value) {
-                        return Number(value);
-                    }
-                }
-            });
-
-            // Set the color of the entire slider track
-            container.noUiSlider.on('update', function (values, handle, unencoded, isTap, positions) {
-                var value = parseFloat(values[handle]);
-                if (gainNodes[index]) {
-                    gainNodes[index].gain.value = value;
-                    // If needed, trigger audio processing here
-                }
-                var connectBar = this.target.querySelector('.noUi-connect');
-                var base = this.target.querySelector('.noUi-base');
-
-                if (base) {
-                    base.style.backgroundColor = 'darkgrey'; // This sets the "unused" portion
-                }
-                if (connectBar) {
-                    connectBar.style.backgroundColor = colors[index]; // This sets the "used" portion
-                }
-            });
-
-            // Save settings when the slider value changes
-            container.noUiSlider.on('change', function (values, handle) {
-                saveSettings();
-            });
-        });
-
-        window.onload = function () {
-            setupSliders();
-            loadSettings();
-        };
     </script>
 </body>
 
