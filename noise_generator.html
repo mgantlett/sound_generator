@@ -24,7 +24,6 @@
         .slider-container {
             height: 200px;
             margin-top: 10px;
-
         }
 
         .slider-wrapper {
@@ -33,10 +32,9 @@
             flex-direction: column;
             align-items: center;
             padding-top: 20px;
-            padding-bottom: 20px;
+            padding-bottom: 30px;
             min-width: 105px;
             border: 1px solid #333;
-
         }
 
         .slider-wrapper label {
@@ -47,9 +45,7 @@
             order: -1;
             white-space: nowrap;
             overflow: hidden;
-            /* Prevents the content from overflowing */
             text-overflow: ellipsis;
-            /* Adds an ellipsis to indicate hidden overflow content */
         }
 
         .noUi-base {
@@ -82,23 +78,121 @@
         }
 
         button {
-            font-size: 1.2em;
+            font-size: 1em;
+            min-width: 175px; /* Prevent buttons from wrapping by setting a minimum width */
+
             padding: 10px 20px;
-            margin: 10px;
+            border: 2px solid transparent;
+            /* Keep borders transparent by default */
+            border-radius: 4px;
+            margin: 5px;
+            /* Uniform margin for all sides */
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: #fff;
+            background-color: #333;
+            /* Dark background for the default state */
+            box-sizing: border-box;
+            /* Include padding and borders in the width and height */
+            /* Define a consistent width for all buttons to prevent size change */
+            width: 150px;
+            /* Adjust this width to fit your design */
+            text-align: center;
+            /* Center the text inside the button */
+        }
+
+        button:hover,
+        button:focus {
+            background-color: #555;
+            /* Lighten the button on hover/focus */
+            border-color: #777;
+            /* Slightly lighter border for hover/focus */
+        }
+
+        button:disabled {
+            background-color: #555;
+            /* Disabled state has a different background */
+            color: #aaa;
+            /* Disabled text color */
+            cursor: not-allowed;
+            /* The cursor indicates the button is not clickable */
+        }
+
+        /* Custom radio button styles */
+        .radio-input {
+            display: none;
+            /* Hide the default radio button */
+        }
+
+        .radio-label {
+            display: inline-block;
+            background-color: #f0f0f0;
+            /* Light background for labels */
+            padding: 10px 20px;
+            /* Padding to increase the clickable area */
+            font-family: Arial, sans-serif;
+            border: 1px solid #ddd;
+            /* Light border for the label */
+            border-radius: 4px;
+            margin-right: 5px;
+            /* Space between labels */
+            cursor: pointer;
+            /* Set the width to match the buttons and prevent size change */
+            width: 150px;
+            /* Adjust this width to fit your design */
+            text-align: center;
+            /* Center the text inside the label */
+            box-sizing: border-box;
+            /* Include padding and borders in the width and height */
+        }
+
+        .radio-input:checked+.radio-label {
+            background-color: #007bff;
+            /* Highlight color for checked state */
+            color: white;
+            border-color: #0056b3;
+        }
+
+        .radio-label:hover {
+            background-color: #e7e7e7;
+            /* Hover state for labels */
+        }
+
+        /* Initialize Audio button styles */
+        #audioButton {
+            background-color: #28a745;
+            /* A distinct color for the primary action */
+            border-color: #218838;
+        }
+
+        #audioButton:hover,
+        #audioButton:focus {
+            background-color: #218838;
+            /* Darken the button on hover/focus */
+            border-color: #1e7e34;
+        }
+
+        .value-indicator {
+            margin-bottom: 10px;
         }
     </style>
+
 </head>
 
 <body>
-    <div id="controls"></div>
     <div>
-        <input type="radio" id="whiteNoise" name="noiseType" value="white" checked>
-        <label for="whiteNoise">White Noise</label><br>
-        <input type="radio" id="pinkNoise" name="noiseType" value="pink">
-        <label for="pinkNoise">Pink Noise</label><br>
-        <input type="radio" id="brownNoise" name="noiseType" value="brown">
-        <label for="brownNoise">Brown Noise</label>
+        <input type="radio" id="whiteNoise" name="noiseType" value="white" class="radio-input" checked>
+        <label for="whiteNoise" class="radio-label">White Noise</label>
+
+        <input type="radio" id="pinkNoise" name="noiseType" value="pink" class="radio-input">
+        <label for="pinkNoise" class="radio-label">Pink Noise</label>
+
+        <input type="radio" id="brownNoise" name="noiseType" value="brown" class="radio-input">
+        <label for="brownNoise" class="radio-label">Brown Noise</label>
     </div>
+<br>
+    <div id="controls"></div>
+
     <button id="audioButton" onclick="toggleAudio()">Initialize Audio</button>
     <button onclick="resetBands(0)" disabled>Reset Bands to 0</button>
     <button onclick="resetBands(0.5)" disabled>Center Bands</button>
@@ -180,7 +274,6 @@
             var label = document.createElement('label');
             label.innerHTML = band[0] + '-' + band[1] + 'Hz';
             label.style.color = colors[index];
-            label.style.marginBottom = '10px'; // Add space below the label
 
             // Append the label to the wrapper
             sliderWrapper.appendChild(label);
