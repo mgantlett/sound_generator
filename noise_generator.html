@@ -1,56 +1,67 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <title>White Noise Generator with Filters and Controls v0.6.1</title>
-        <style>
-            /* Style definitions */
-            body {
-                background-color: #000;
-                color: #fff;
-                font-family: Arial, sans-serif;
-                text-align: center;
-                margin: 0;
-                padding: 30px;
-            }
-            #controls {
-                display: flex;
-                justify-content: center;
-                flex-wrap: wrap;
-            } 
-            .slider-container {
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                margin: 5px;
-            }
-            .slider {
-                -webkit-appearance: none;
-                appearance: none;
-                width: 200px; /* Adjusted for horizontal */
-                height: 20px;
-                background: linear-gradient(to right, green 50%, #fff 50%); /* Horizontal gradient */
-                border: solid 1px #00b300;
-                border-radius: 8px;
-                outline: none; 
-                transition: background 450ms ease-in;
-                margin: 5px 0;
-            }
-            .slider::-webkit-slider-thumb {
-                -webkit-appearance: none;
-                background-color: orange;
-                border: solid 12px gold;
-                height: 25px;
-                width: 25px;
-                border-radius: 50%;
-            }
-            button {
-                font-size: 1.2em;
-                padding: 10px 20px;
-                margin: 10px;
-            }
-        </style>
-    </head>
-    
+
+<head>
+    <title>White Noise Generator with Filters and Controls v0.6.1</title>
+    <style>
+        /* Style definitions */
+        body {
+            background-color: #000;
+            color: #fff;
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 0;
+            padding: 30px;
+        }
+
+        #controls {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .slider-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 5px;
+        }
+
+        .slider {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 200px;
+            /* Adjusted for horizontal */
+            height: 20px;
+            /* background: linear-gradient(to right, green 50%, #851212 50%); */
+            
+            /* Horizontal gradient */
+            border: solid 2px #bac1ba;
+            border-radius: 8px;
+            outline: none;
+            transition: background 450ms ease-in;
+            margin: 5px 0;
+        }
+
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            background-color: var(--thumb-color, orange); /* Default to orange if no color is set */
+
+            /* background-color: orange; */
+            border: solid 2px rgb(255, 255, 252);
+            height: 25px;
+            width: 25px;
+            border-radius: 50%;
+        }
+
+        button {
+            font-size: 1.2em;
+            padding: 10px 20px;
+            margin: 10px;
+        }
+    </style>
+</head>
+
 <body>
     <div id="controls"></div>
     <div>
@@ -76,8 +87,8 @@
         ];
         var settings = JSON.parse(localStorage.getItem('noiseSettings')) || { white: [], pink: [], brown: [] };
 
-        document.querySelectorAll('input[name="noiseType"]').forEach(function(radio) {
-            radio.addEventListener('change', function() {
+        document.querySelectorAll('input[name="noiseType"]').forEach(function (radio) {
+            radio.addEventListener('change', function () {
                 currentNoiseType = this.value;
                 loadSettings();
                 if (isPlaying) {
@@ -113,7 +124,7 @@
             if (!noiseProcessor || noiseProcessor.context.state === 'closed') {
                 noiseProcessor = context.createScriptProcessor(4096, 1, 1);
             }
-            noiseProcessor.onaudioprocess = function(e) {
+            noiseProcessor.onaudioprocess = function (e) {
                 var output = e.outputBuffer.getChannelData(0);
                 for (var i = 0; i < output.length; i++) {
                     if (currentNoiseType === 'white') {
@@ -130,12 +141,12 @@
         }
 
         function setupGainNodes() {
-            gainNodes.forEach(function(gainNode) {
+            gainNodes.forEach(function (gainNode) {
                 gainNode.disconnect();
             });
             gainNodes = [];
 
-            frequencyBands.forEach(function(band, index) {
+            frequencyBands.forEach(function (band, index) {
                 var filter = createBandpassFilter(band[0], band[1]);
                 var gainNode = context.createGain();
                 gainNodes[index] = gainNode;
@@ -159,7 +170,7 @@
             var b0, b1, b2, b3, b4, b5, b6;
             b0 = b1 = b2 = b3 = b4 = b5 = b6 = 0.0;
             var white = Math.random() * 2 - 1;
-                b0 = 0.99886 * b0 + white * 0.0555179;
+            b0 = 0.99886 * b0 + white * 0.0555179;
             b1 = 0.99332 * b1 + white * 0.0750759;
             b2 = 0.96900 * b2 + white * 0.1538520;
             b3 = 0.86650 * b3 + white * 0.3104856;
@@ -169,7 +180,7 @@
             pink *= 0.11; // Adjust to proper level
             b6 = white * 0.115926;
             return pink;
-            }
+        }
 
         function generateBrownNoise(index) {
             return Math.random() * 2 - 1;
@@ -179,7 +190,7 @@
             if (noiseProcessor) {
                 noiseProcessor.disconnect();
                 noiseProcessor = null;
-                gainNodes.forEach(function(gainNode) {
+                gainNodes.forEach(function (gainNode) {
                     gainNode.disconnect();
                 });
                 gainNodes = [];
@@ -200,33 +211,49 @@
             }
             saveSettings();
         }
+        var colors = [
+    "#8B0000", // Deep Red
+    "#FF4500", // Red-Orange
+    "#FFA500", // Orange
+    "#FFD700", // Gold-Yellow
+    "#FFFF00", // Light Yellow
+    "#ADFF2F", // Light Green
+    "#7FFFD4", // Aquamarine
+    "#87CEEB", // Sky Blue
+    "#4169E1", // Royal Blue
+    "#8A2BE2"  // Violet
+];
+
 
         function setSliderValue(index, value) {
-        var slider = document.getElementById('slider' + index);
-        if (slider) {
-            slider.value = value;
-            updateDisplayValue(index, value);
-            updateSliderBackground(slider, value);
-            if (gainNodes[index]) {
-                gainNodes[index].gain.value = value;
+            var slider = document.getElementById('slider' + index);
+            if (slider) {
+                slider.value = value;
+                updateDisplayValue(index, value);
+                updateSliderBackground(slider, value, colors[index]);
+                if (gainNodes[index]) {
+                    gainNodes[index].gain.value = value;
+                }
             }
         }
-    }
 
-    function updateSliderBackground(slider, value) {
-        slider.style.background = 'linear-gradient(to right, green 0%, green ' + (value * 100) + '%, #fff ' + (value * 100) + '%)';
-    }
+        function updateSliderBackground(slider, value, color) {
+    // Update the slider background
+    slider.style.background = 'linear-gradient(to right, ' + color + ' 0%, ' + color + ' ' + (value * 100) + '%, #fff ' + (value * 100) + '%)';
 
-    function updateDisplayValue(index, value) {
-        var valueDisplay = document.getElementById('valueDisplay' + index);
-        if (valueDisplay) {
-            valueDisplay.textContent = ' (' + value.toFixed(2) + ')';
+    // Update the thumb button color
+    slider.style.setProperty("--thumb-color", color);
+}
+        function updateDisplayValue(index, value) {
+            var valueDisplay = document.getElementById('valueDisplay' + index);
+            if (valueDisplay) {
+                valueDisplay.textContent = ' (' + value.toFixed(2) + ')';
+            }
         }
-    }
 
         function saveSettings() {
             var currentSettings = settings[currentNoiseType] || [];
-            gainNodes.forEach(function(gainNode, index) {
+            gainNodes.forEach(function (gainNode, index) {
                 currentSettings[index] = gainNode.gain.value;
             });
             settings[currentNoiseType] = currentSettings;
@@ -236,15 +263,15 @@
         function loadSettings() {
             var savedSettings = settings[currentNoiseType];
             if (savedSettings) {
-                savedSettings.forEach(function(value, index) {
+                savedSettings.forEach(function (value, index) {
                     setSliderValue(index, value);
                     updateDisplayValue(index, value);
                 });
             }
         }
 
-         // Slider creation with value display
-         frequencyBands.forEach(function(band, index) {
+        // Slider creation with value display
+        frequencyBands.forEach(function (band, index) {
             var container = document.createElement('div');
             container.className = 'slider-container';
 
@@ -264,15 +291,18 @@
             valueDisplay.id = 'valueDisplay' + index;
             valueDisplay.textContent = ' (' + slider.value + ')';
 
-            slider.oninput = function() {
-        var value = parseFloat(this.value);
-        updateDisplayValue(index, value);
-        updateSliderBackground(this, value);
-        if (gainNodes[index]) {
-            gainNodes[index].gain.value = value;
-        }
-        saveSettings();
-    };
+            slider.oninput = function () {
+                var value = parseFloat(this.value);
+                updateDisplayValue(index, value);
+                updateSliderBackground(this, value, colors[index]);
+                if (gainNodes[index]) {
+                    gainNodes[index].gain.value = value;
+                }
+                saveSettings();
+            };
+            // Initial background color setting
+            updateSliderBackground(slider, slider.value, colors[index]);
+
 
             container.appendChild(label);
             container.appendChild(valueDisplay);
@@ -282,10 +312,10 @@
         });
 
         // Initialize settings on page load
-        window.onload = function() {
+        window.onload = function () {
             loadSettings();
         };
     </script>
 </body>
-</html>
 
+</html>
