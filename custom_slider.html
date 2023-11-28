@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Input Range Progress with CSS Gradient</title>
+    <style>
+        @import "compass/css3";
+
+        /* Codepen relevant Styling */
+        body {
+            background-color: #190c40;
+            color: white; 
+            font-family: monotype, sans-serif;
+            letter-spacing: 1px; 
+        }
+
+        h1 {
+            font-size: 2rem; 
+            margin-bottom: -5px;
+        }
+
+        h5 {
+            font-size: 1rem; 
+            letter-spacing: 4px; 
+            color: gold; 
+            font-weight: normal;
+        }
+
+        /* Actual Styling for Input type=["range"] */
+        .chrome input {
+            background: linear-gradient(to right, green 0%, green 50%, #fff 50%, #fff 100%);
+            border: solid 1px #00b300;
+            border-radius: 8px;
+            height: 7px;
+            width: 356px;
+            outline: none; 
+            transition: background 450ms ease-in;
+            -webkit-appearance: none;
+        }
+
+        .chrome input::-webkit-slider-thumb {
+            background-color: orange;
+            border: solid 12px gold;
+            border-radius: 0;
+            height: 25px;
+            width: 25px;
+            border-radius: 50%;
+            -webkit-appearance: none;
+        }
+    </style>
+</head>
+<body>
+    <center>
+        <br/><br/>
+        <h1>Input Range progress with css gradient</h1>
+        <h5>FOR CHROME</h5>
+        <br/><br/>
+        <div class="chrome">
+            <input type="range" value="50" />
+        </div>
+    </center>
+    <script>
+        // .firefox
+        var isFF = true;
+        var addRule = (function (style) {
+            var sheet = document.head.appendChild(style).sheet;
+            return function (selector, css) {
+                if (isFF) {
+                    if (sheet.cssRules.length > 0) {
+                        sheet.deleteRule(0);
+                    }
+                    
+                    try {
+                        sheet.insertRule(selector + "{" + css + "}", 0);
+                    } catch (ex) {
+                        isFF = false;
+                    }
+                }    
+            };
+        })(document.createElement("style"));
+
+        // .chrome styling
+        document.querySelector('.chrome input').addEventListener('input', function() {
+            this.style.background = 'linear-gradient(to right, green 0%, green ' + this.value + '%, #fff ' + this.value + '%, white 100%)';
+        });
+    </script>
+</body>
+</html>
