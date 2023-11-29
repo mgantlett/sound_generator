@@ -292,6 +292,7 @@
 
 
 
+
         function resetBands(value) {
             for (var i = 0; i < frequencyBands.length; i++) {
                 setSliderValue(i, value);
@@ -402,24 +403,32 @@
         });
 
         function playNoise() {
+
             if (!noiseProcessor || noiseProcessor.context.state === 'closed') {
-                noiseProcessor = context.createScriptProcessor(4096, 1, 1);
+                noiseProcessor = context.createScriptProcessor(4096, 1, 8);
             }
             noiseProcessor.onaudioprocess = function (e) {
-                var output = e.outputBuffer.getChannelData(0);
-                for (var i = 0; i < output.length; i++) {
-                    if (currentNoiseType === 'white') {
-                        output[i] = generateWhiteNoise();
-                    } else if (currentNoiseType === 'pink') {
-                        output[i] = generatePinkNoise(i);
-                    } else if (currentNoiseType === 'brown') {
-                        output[i] = generateBrownNoise(i);
+                for (var channel = 0; channel < e.outputBuffer.numberOfChannels; channel++) {
+                    var output = e.outputBuffer.getChannelData(channel);
+                    for (var i = 0; i < output.length; i++) {
+                        var noise = 0;
+                        if (currentNoiseType === 'white') {
+                            noise = generateWhiteNoise();
+                        } else if (currentNoiseType === 'pink') {
+                            noise = generatePinkNoise(i);
+                        } else if (currentNoiseType === 'brown') {
+                            noise = generateBrownNoise(i);
+                        }
+                        output[i] = noise;
                     }
                 }
             };
 
             setupGainNodes();
+            automateMasterFade(2, 2, 10); // Example: Fade in 2 sec, Fade out 2 sec, Total 10 sec
+
         }
+
 
         function setupGainNodes() {
             gainNodes.forEach(function (gainNode) {
@@ -434,12 +443,31 @@
 
                 noiseProcessor.connect(filter);
                 filter.connect(gainNode);
-                gainNode.connect(context.destination);
+                gainNode.connect(masterGainNode); // Connect to master gain node
 
                 var savedValue = settings[currentNoiseType][index];
                 gainNode.gain.value = savedValue !== undefined ? parseFloat(savedValue) : 0.5;
             });
         }
+        function automateMasterFade(fadeInTime, fadeOutTime, duration) {
+            var currentTime = context.currentTime;
+
+            // Reset gain to 0 immediately
+            masterGainNode.gain.cancelScheduledValues(currentTime);
+            masterGainNode.gain.setValueAtTime(0, currentTime);
+
+            // Fade in
+            masterGainNode.gain.linearRampToValueAtTime(1, currentTime + fadeInTime);
+
+            // Maintain volume for duration - fadeInTime - fadeOutTime
+            var maintainVolumeTime = duration - fadeInTime - fadeOutTime;
+            masterGainNode.gain.setValueAtTime(1, currentTime + fadeInTime + maintainVolumeTime);
+
+            // Fade out
+            masterGainNode.gain.linearRampToValueAtTime(0, currentTime + duration);
+        }
+
+
 
         function generateWhiteNoise() {
             return Math.random() * 2 - 1;
@@ -465,21 +493,32 @@
             lastOut = lastOut > 1 ? 1 : lastOut < -1 ? -1 : lastOut;
             return lastOut;
         }
-
         function stopNoise() {
             if (noiseProcessor) {
-                noiseProcessor.disconnect();
-                noiseProcessor = null;
-                gainNodes.forEach(function (gainNode) {
-                    gainNode.disconnect();
-                });
-                gainNodes = [];
+                // Start fade out
+                automateMasterFade(0, 2, 2); // No fade in, 2 sec fade out, total 2 sec duration
+
+                // Schedule the disconnection after the fade-out
+                setTimeout(function () {
+                    noiseProcessor.disconnect();
+                    noiseProcessor = null;
+                    gainNodes.forEach(function (gainNode) {
+                        gainNode.disconnect();
+                    });
+                    gainNodes = [];
+                }, 2000); // 2000 ms = 2 seconds
             }
         }
 
+        var masterGainNode;
         function toggleAudio() {
             if (!context) {
                 context = new AudioContext();
+            }
+            // Initialize masterGainNode if it's not already initialized
+            if (!masterGainNode) {
+                masterGainNode = context.createGain();
+                masterGainNode.connect(context.destination);
             }
 
             var buttons = document.querySelectorAll('button:not(#audioButton)');
@@ -501,7 +540,15 @@
                 // });
             }
         }
+        function automateFade(gainNode, fadeInTime, fadeOutTime, duration) {
+            var currentTime = context.currentTime;
+            gainNode.gain.setValueAtTime(0, currentTime);  // Start at 0
+            gainNode.gain.linearRampToValueAtTime(1, currentTime + fadeInTime); // Fade in
 
+            // Start fade out after (duration - fadeOutTime)
+            gainNode.gain.setValueAtTime(1, currentTime + duration - fadeOutTime);
+            gainNode.gain.linearRampToValueAtTime(0, currentTime + duration); // Fade out
+        }
         function saveSettings() {
             var currentSettings = settings[currentNoiseType] || [];
             frequencyBands.forEach(function (_, index) {
