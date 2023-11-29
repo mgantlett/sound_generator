@@ -1,4 +1,4 @@
-# sound_generator# White Noise Generator
+# White Noise Generator
 
 ## Overview
 The White Noise Generator is a web application designed to create different types of noise, including white, pink, and brown noise. It uses the Web Audio API and is compatible with 7.1 surround sound systems. The application features adjustable frequency bands and automated fade-in and fade-out effects for a smooth audio experience.
