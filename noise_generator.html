@@ -16,8 +16,8 @@
 
         #controls {
             display: flex;
-            justify-content: space-between;
-            flex-wrap: nowrap;
+    flex-wrap: wrap;
+    justify-content: space-around; /* Adjust as needed */
             padding-bottom: 15px;
         }
 
@@ -27,7 +27,9 @@
         }
 
         .slider-wrapper {
-            flex: 1;
+            flex: 1 1 20%; /* Adjust the 20% to control how many sliders per row */
+    margin: 5px; /* Adjust spacing between sliders */
+    max-width: 100px; /* Optional: to prevent sliders from getting too wide */
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -163,6 +165,8 @@
             color: #fff;
             margin-right: 5px;
         }
+
+
     </style>
 </head>
 
