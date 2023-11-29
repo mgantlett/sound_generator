@@ -425,11 +425,26 @@
             };
 
             setupGainNodes();
-            automateMasterFade(2, 2, 10); // Example: Fade in 2 sec, Fade out 2 sec, Total 10 sec
+            //automateFadeIn(2); // Example: 2 sec fade in
 
         }
 
+        function stopNoise() {
+            if (noiseProcessor) {
+                // Start fade out
+                //automateFadeOut(2); // Example: 2 sec fade out
 
+                // Schedule the disconnection after the fade-out
+                setTimeout(function () {
+                    noiseProcessor.disconnect();
+                    noiseProcessor = null;
+                    gainNodes.forEach(function (gainNode) {
+                        gainNode.disconnect();
+                    });
+                    gainNodes = [];
+                }, 2000); // 2000 ms = 2 seconds
+            }
+        }
         function setupGainNodes() {
             gainNodes.forEach(function (gainNode) {
                 gainNode.disconnect();
@@ -493,22 +508,7 @@
             lastOut = lastOut > 1 ? 1 : lastOut < -1 ? -1 : lastOut;
             return lastOut;
         }
-        function stopNoise() {
-            if (noiseProcessor) {
-                // Start fade out
-                automateMasterFade(0, 2, 2); // No fade in, 2 sec fade out, total 2 sec duration
 
-                // Schedule the disconnection after the fade-out
-                setTimeout(function () {
-                    noiseProcessor.disconnect();
-                    noiseProcessor = null;
-                    gainNodes.forEach(function (gainNode) {
-                        gainNode.disconnect();
-                    });
-                    gainNodes = [];
-                }, 2000); // 2000 ms = 2 seconds
-            }
-        }
 
         var masterGainNode;
         function toggleAudio() {
@@ -540,15 +540,22 @@
                 // });
             }
         }
-        function automateFade(gainNode, fadeInTime, fadeOutTime, duration) {
-            var currentTime = context.currentTime;
-            gainNode.gain.setValueAtTime(0, currentTime);  // Start at 0
-            gainNode.gain.linearRampToValueAtTime(1, currentTime + fadeInTime); // Fade in
+        function automateFadeIn(fadeInTime) {
+            console.log('Starting Fade In');
 
-            // Start fade out after (duration - fadeOutTime)
-            gainNode.gain.setValueAtTime(1, currentTime + duration - fadeOutTime);
-            gainNode.gain.linearRampToValueAtTime(0, currentTime + duration); // Fade out
-        }
+    var currentTime = context.currentTime;
+    masterGainNode.gain.cancelScheduledValues(currentTime);
+    masterGainNode.gain.setValueAtTime(0, currentTime);
+    masterGainNode.gain.linearRampToValueAtTime(1, currentTime + fadeInTime);
+}
+function automateFadeOut(fadeOutTime) {
+    console.log('Starting Fade Out');
+
+    var currentTime = context.currentTime;
+    masterGainNode.gain.setValueAtTime(masterGainNode.gain.value, currentTime);
+    masterGainNode.gain.linearRampToValueAtTime(0, currentTime + fadeOutTime);
+}
+
         function saveSettings() {
             var currentSettings = settings[currentNoiseType] || [];
             frequencyBands.forEach(function (_, index) {
