@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <title>White Noise Generator with Filters and Controls</title>
     <link href="https://cdn.jsdelivr.net/npm/nouislider/distribute/nouislider.min.css" rel="stylesheet">
@@ -12,16 +13,19 @@
             margin: 0;
             padding: 30px;
         }
+
         #controls {
             display: flex;
             justify-content: space-between;
             flex-wrap: nowrap;
             padding-bottom: 15px;
         }
+
         .slider-container {
             height: 200px;
             margin-top: 10px;
         }
+
         .slider-wrapper {
             flex: 1;
             display: flex;
@@ -32,6 +36,7 @@
             min-width: 105px;
             border: 1px solid #333;
         }
+
         .slider-wrapper label {
             align-self: flex-start;
             text-align: center;
@@ -42,14 +47,17 @@
             overflow: hidden;
             text-overflow: ellipsis;
         }
+
         .noUi-base {
             height: 100%;
             width: 100%;
             background-color: darkgrey;
         }
+
         .noUi-marker {
             opacity: 0.6;
         }
+
         .noUi-handle {
             cursor: pointer;
             border: 2px solid #333;
@@ -57,15 +65,18 @@
             background-color: #bdbdbd;
             border-radius: 8px;
         }
+
         .noUi-tooltip {
             padding: 1px;
             left: 100%;
             top: -10px;
             transform: translate(10px, -50%);
         }
+
         .noUi-value {
             display: none;
         }
+
         button {
             font-size: 1em;
             min-width: 175px;
@@ -86,18 +97,23 @@
             margin: 5px 5px;
             border: 1px solid #7f7c7c;
         }
-        button:hover, button:focus {
+
+        button:hover,
+        button:focus {
             background-color: #28a745;
             border-color: #218838;
         }
+
         button:disabled {
             background-color: #555;
             color: #aaa;
             cursor: not-allowed;
         }
+
         .radio-input {
             display: none;
         }
+
         .radio-label {
             display: inline-block;
             background-color: #3f3d3d;
@@ -112,27 +128,44 @@
             text-align: center;
             box-sizing: border-box;
         }
-        .radio-input:checked + .radio-label {
+
+        .radio-input:checked+.radio-label {
             background-color: #007bff;
             color: white;
             border-color: #0056b3;
         }
+
         .radio-label:hover {
             background-color: #727777;
         }
+
         #audioButton {
             background-color: #28a745;
             border-color: #218838;
         }
-        #audioButton:hover, #audioButton:focus {
+
+        #audioButton:hover,
+        #audioButton:focus {
             background-color: #218838;
             border-color: #1e7e34;
         }
+
         .value-indicator {
             margin-bottom: 10px;
         }
+
+        #presetSelector {
+            font-size: 1em;
+            padding: 10px 20px;
+            border: 1px solid #7f7c7c;
+            border-radius: 4px;
+            background-color: #333;
+            color: #fff;
+            margin-right: 5px;
+        }
     </style>
 </head>
+
 <body>
     <div>
         <input type="radio" id="whiteNoise" name="noiseType" value="white" class="radio-input" checked>
@@ -141,7 +174,16 @@
         <label for="pinkNoise" class="radio-label">Pink Noise</label>
         <input type="radio" id="brownNoise" name="noiseType" value="brown" class="radio-input">
         <label for="brownNoise" class="radio-label">Brown Noise</label>
+    </div> <br>
+    <div>
+        <select id="presetSelector">
+            <option value="custom">Custom Preset</option>
+            <!-- Preset options will be added dynamically -->
+        </select>
+        <button onclick="savePreset()">Save Preset</button>
+        <button onclick="deletePreset()">Delete Preset</button>
     </div>
+
     <br>
     <div id="controls"></div>
     <button id="audioButton" onclick="toggleAudio()">Initialize Audio</button>
@@ -194,6 +236,7 @@
             resetAllBandsToZero();
             setSliderValue(4, 0.8);
             setSliderValue(5, 0.8);
+            resetPresetSelector();
             saveSettings();
         }
 
@@ -201,6 +244,7 @@
             resetAllBandsToZero();
             setSliderValue(0, 0.8);
             setSliderValue(3, 0.6);
+            resetPresetSelector();
             saveSettings();
         }
 
@@ -208,6 +252,7 @@
             resetAllBandsToZero();
             setSliderValue(2, 0.7);
             setSliderValue(4, 0.7);
+            resetPresetSelector();
             saveSettings();
         }
 
@@ -215,6 +260,7 @@
             resetAllBandsToZero();
             setSliderValue(0, 0.6);
             setSliderValue(1, 0.4);
+            resetPresetSelector();
             saveSettings();
         }
 
@@ -223,6 +269,7 @@
             frequencyBands.forEach(function (_, index) {
                 setSliderValue(index, value);
             });
+            resetPresetSelector();
             saveSettings();
         }
 
@@ -231,6 +278,7 @@
                 var currentValue = gainNodes[index] ? gainNodes[index].gain.value : 0.5;
                 setSliderValue(index, Math.max(0, Math.min(1, currentValue + delta)));
             });
+            resetPresetSelector();
             saveSettings();
         }
 
@@ -243,7 +291,10 @@
                 }
             }
         }
-
+        // Helper function to reset preset selector
+        function resetPresetSelector() {
+            document.getElementById('presetSelector').value = 'custom';
+        }
         // Function to handle audio processing
         function playNoise() {
             if (!noiseProcessor || noiseProcessor.context.state === 'closed') {
@@ -411,6 +462,52 @@
             return filter;
         }
 
+        // New functions for preset management
+        function savePreset() {
+            var presetName = prompt("Enter a name for the new preset:");
+            if (presetName) {
+                var presets = JSON.parse(localStorage.getItem('presets')) || {};
+                presets[presetName] = settings;
+                localStorage.setItem('presets', JSON.stringify(presets));
+                loadPresetOptions();
+            }
+        }
+
+        function deletePreset() {
+            var presetName = document.getElementById('presetSelector').value;
+            if (presetName !== 'custom') {
+                var presets = JSON.parse(localStorage.getItem('presets')) || {};
+                delete presets[presetName];
+                localStorage.setItem('presets', JSON.stringify(presets));
+                loadPresetOptions();
+            }
+        }
+
+        function loadPresetOptions() {
+            var presetSelector = document.getElementById('presetSelector');
+            presetSelector.innerHTML = '<option value="custom">Custom Preset</option>';
+            var presets = JSON.parse(localStorage.getItem('presets')) || {};
+            for (var presetName in presets) {
+                var option = document.createElement('option');
+                option.value = presetName;
+                option.textContent = presetName;
+                presetSelector.appendChild(option);
+            }
+        }
+
+        document.getElementById('presetSelector').addEventListener('change', function () {
+            var presetName = this.value;
+            var presets = JSON.parse(localStorage.getItem('presets')) || {};
+            if (presets[presetName]) {
+                settings = presets[presetName];
+                loadSettings();
+            }
+        });
+
+        // Initialization of presets on page load
+        document.addEventListener('DOMContentLoaded', function () {
+            loadPresetOptions();
+        });
         // Slider setup for frequency bands
         frequencyBands.forEach(function (band, index) {
             var sliderWrapper = document.createElement('div');
@@ -470,13 +567,17 @@
                 if (connectBar) {
                     connectBar.style.backgroundColor = colors[index];
                 }
+
             });
 
             container.noUiSlider.on('change', function () {
+                // Reset the preset selector to 'Custom Preset' when a slider value changes
+                resetPresetSelector();
                 saveSettings();
             });
         });
 
     </script>
 </body>
+
 </html>
