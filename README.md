@@ -57,6 +57,7 @@ sequenceDiagram
     participant GainNodes
     participant MasterGainNode
     participant WebAudioAPI
+    participant LocalStorage
 
     User->>UI: Select Noise Type (White, Pink, Brown)
     UI->>AudioContext: Initialize if not already
@@ -73,6 +74,9 @@ sequenceDiagram
     MasterGainNode->>WebAudioAPI: Adjust Volume (Fade In)
     WebAudioAPI->>NoiseProcessor: Process and Generate Noise
     NoiseProcessor->>WebAudioAPI: Output Noise
+    User->>UI: Use Preset or Adjust Sliders
+    UI->>LocalStorage: Save/Load/Delete Preset
+    LocalStorage->>UI: Update UI with Preset Settings
     User->>UI: Click 'Stop Audio'
     UI->>MasterGainNode: automateFadeOut()
     MasterGainNode->>WebAudioAPI: Adjust Volume (Fade Out)
