@@ -80,3 +80,27 @@ sequenceDiagram
 ## Browser Compatibility
 
 Optimized for modern browsers like Chrome, Firefox, and Edge that fully support the Web Audio API.
+
+## Contributing
+
+Contributions to the White Noise Generator project are welcome. Follow standard procedures for contributing to open-source projects, including submitting pull requests for new features or bug fixes.
+
+## License
+
+[MIT License](LICENSE.md)
+
+## Author
+
+[Mark Gantlett]
+
+## Assistance by ChatGPT
+
+Throughout the development of the White Noise Generator, I received substantial assistance from ChatGPT, an AI developed by OpenAI. ChatGPT helped in various aspects including:
+
+- Code troubleshooting and debugging.
+- Generating sequence diagrams to visualize the application flow.
+- Refactoring and commenting the JavaScript code for better readability and maintainability.
+- Providing suggestions and guidance on implementing specific features such as the fade-in/fade-out functionality.
+- Assisting in writing and structuring this `README.md` file.
+
+The collaboration with ChatGPT showcases the potential of AI-assisted development in creating robust and efficient web applications.
