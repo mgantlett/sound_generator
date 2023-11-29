@@ -425,24 +425,26 @@
             };
 
             setupGainNodes();
-            //automateFadeIn(2); // Example: 2 sec fade in
+            automateFadeIn(2); // Example: 2 sec fade in
 
         }
 
         function stopNoise() {
             if (noiseProcessor) {
-                // Start fade out
-                //automateFadeOut(2); // Example: 2 sec fade out
+                automateFadeOut(2); // Start 2 sec fade out
 
-                // Schedule the disconnection after the fade-out
-                noiseProcessor.disconnect();
-                noiseProcessor = null;
-                gainNodes.forEach(function (gainNode) {
-                    gainNode.disconnect();
-                });
-                gainNodes = [];
+                // Wait for 2 seconds before disconnecting the nodes
+                setTimeout(function () {
+                    noiseProcessor.disconnect();
+                    noiseProcessor = null;
+                    gainNodes.forEach(function (gainNode) {
+                        gainNode.disconnect();
+                    });
+                    gainNodes = [];
+                }, 2000); // 2000 milliseconds = 2 seconds
             }
         }
+
         function setupGainNodes() {
             gainNodes.forEach(function (gainNode) {
                 gainNode.disconnect();
