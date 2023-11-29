@@ -4,9 +4,11 @@
 [Noise Generator HTML File](https://mgantlett.github.io/sound_generator/noise_generator.html)
 
 ## Overview
-The White Noise Generator is a versatile web application designed to produce white, pink, and brown noise. It utilizes the Web Audio API for advanced audio processing and is compatible with 7.1 surround sound systems. This application is user-friendly, with a focus on customizable audio experiences and seamless user interaction.  Inspired by https://mynoise.net/NoiseMachines/whiteNoiseGenerator.php
+
+The White Noise Generator is a versatile web application designed to produce white, pink, and brown noise. It utilizes the Web Audio API for advanced audio processing and is compatible with 7.1 surround sound systems. This application is user-friendly, with a focus on customizable audio experiences and seamless user interaction.  Inspired by <https://mynoise.net/NoiseMachines/whiteNoiseGenerator.php>
 
 ## Features
+
 - Three types of noise generation: white, pink, and brown.
 - Compatibility with 7.1 surround sound systems.
 - Adjustable frequency bands for detailed sound customization.
@@ -15,6 +17,7 @@ The White Noise Generator is a versatile web application designed to produce whi
 - Ability to save and load custom settings for repeated use.
 
 ## Usage Instructions
+
 1. Launch the application in a web browser that supports the Web Audio API.
 2. Choose your desired noise type (white, pink, or brown) using the radio buttons.
 3. Customize the sound using the frequency band sliders.
@@ -23,6 +26,7 @@ The White Noise Generator is a versatile web application designed to produce whi
 6. Stop the noise generation smoothly by clicking "Stop Audio."
 
 ## Technical Details
+
 - Built with HTML, CSS, and JavaScript.
 - Uses the Web Audio API for real-time audio processing.
 - Features a script processor node for dynamic noise generation.
@@ -30,6 +34,7 @@ The White Noise Generator is a versatile web application designed to produce whi
 - NoUiSlider for interactive and responsive sliders.
 
 ### Core Functions
+
 - `playNoise`: Starts noise generation based on selected type and settings.
 - `setupGainNodes`: Configures gain nodes corresponding to frequency bands.
 - `generateWhiteNoise`, `generatePinkNoise`, `generateBrownNoise`: Functions for different noise types.
@@ -38,7 +43,6 @@ The White Noise Generator is a versatile web application designed to produce whi
 
 ### Interaction Flow of the White Noise Generator Application
 
- 
 ```mermaid
 sequenceDiagram
     participant User
@@ -74,4 +78,5 @@ sequenceDiagram
 ```
 
 ## Browser Compatibility
+
 Optimized for modern browsers like Chrome, Firefox, and Edge that fully support the Web Audio API.
