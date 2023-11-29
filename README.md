@@ -35,5 +35,42 @@ The White Noise Generator is a versatile web application designed to produce whi
 - `stopNoise`: Fades out and stops noise generation.
 - `toggleAudio`: Toggles the state of audio playback.
 
+### Interaction Flow of the White Noise Generator Application
+
+ 
+```mermaid
+sequenceDiagram
+    participant User
+    participant UI
+    participant AudioContext
+    participant NoiseProcessor
+    participant GainNodes
+    participant MasterGainNode
+    participant WebAudioAPI
+
+    User->>UI: Select Noise Type (White, Pink, Brown)
+    UI->>AudioContext: Initialize if not already
+    AudioContext->>NoiseProcessor: Create ScriptProcessorNode
+    loop For each Frequency Band
+        NoiseProcessor->>GainNodes: Connect to Bandpass Filters
+        GainNodes->>MasterGainNode: Connect Gain Nodes
+    end
+    MasterGainNode->>WebAudioAPI: Connect to Destination
+    User->>UI: Adjust Frequency Bands
+    UI->>GainNodes: Update Gain Values
+    User->>UI: Click 'Initialize Audio'
+    UI->>MasterGainNode: automateFadeIn()
+    MasterGainNode->>WebAudioAPI: Adjust Volume (Fade In)
+    WebAudioAPI->>NoiseProcessor: Process and Generate Noise
+    NoiseProcessor->>WebAudioAPI: Output Noise
+    User->>UI: Click 'Stop Audio'
+    UI->>MasterGainNode: automateFadeOut()
+    MasterGainNode->>WebAudioAPI: Adjust Volume (Fade Out)
+    WebAudioAPI-->>NoiseProcessor: Stop Noise Generation
+    NoiseProcessor->>AudioContext: Disconnect and Cleanup
+    AudioContext-->>UI: Audio Stopped
+
+```
+
 ## Browser Compatibility
 Optimized for modern browsers like Chrome, Firefox, and Edge that fully support the Web Audio API.
