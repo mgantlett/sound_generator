@@ -435,14 +435,12 @@
                 //automateFadeOut(2); // Example: 2 sec fade out
 
                 // Schedule the disconnection after the fade-out
-                setTimeout(function () {
-                    noiseProcessor.disconnect();
-                    noiseProcessor = null;
-                    gainNodes.forEach(function (gainNode) {
-                        gainNode.disconnect();
-                    });
-                    gainNodes = [];
-                }, 2000); // 2000 ms = 2 seconds
+                noiseProcessor.disconnect();
+                noiseProcessor = null;
+                gainNodes.forEach(function (gainNode) {
+                    gainNode.disconnect();
+                });
+                gainNodes = [];
             }
         }
         function setupGainNodes() {
@@ -543,18 +541,18 @@
         function automateFadeIn(fadeInTime) {
             console.log('Starting Fade In');
 
-    var currentTime = context.currentTime;
-    masterGainNode.gain.cancelScheduledValues(currentTime);
-    masterGainNode.gain.setValueAtTime(0, currentTime);
-    masterGainNode.gain.linearRampToValueAtTime(1, currentTime + fadeInTime);
-}
-function automateFadeOut(fadeOutTime) {
-    console.log('Starting Fade Out');
+            var currentTime = context.currentTime;
+            masterGainNode.gain.cancelScheduledValues(currentTime);
+            masterGainNode.gain.setValueAtTime(0, currentTime);
+            masterGainNode.gain.linearRampToValueAtTime(1, currentTime + fadeInTime);
+        }
+        function automateFadeOut(fadeOutTime) {
+            console.log('Starting Fade Out');
 
-    var currentTime = context.currentTime;
-    masterGainNode.gain.setValueAtTime(masterGainNode.gain.value, currentTime);
-    masterGainNode.gain.linearRampToValueAtTime(0, currentTime + fadeOutTime);
-}
+            var currentTime = context.currentTime;
+            masterGainNode.gain.setValueAtTime(masterGainNode.gain.value, currentTime);
+            masterGainNode.gain.linearRampToValueAtTime(0, currentTime + fadeOutTime);
+        }
 
         function saveSettings() {
             var currentSettings = settings[currentNoiseType] || [];
