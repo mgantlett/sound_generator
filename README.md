@@ -5,7 +5,7 @@
 
 ## Overview
 
-The White Noise Generator is a versatile web application designed to produce white, pink, and brown noise. It utilizes the Web Audio API for advanced audio processing and is compatible with 7.1 surround sound systems. This application is user-friendly, with a focus on customizable audio experiences and seamless user interaction.  Inspired by <https://mynoise.net/NoiseMachines/whiteNoiseGenerator.php>
+The White Noise Generator is a versatile web application designed to produce white, pink, and brown noise. It utilizes the Web Audio API for advanced audio processing and is compatible with 7.1 surround sound systems. This application is user-friendly, with a focus on customizable audio experiences and seamless user interaction. Inspired by [mynoise.net](https://mynoise.net/NoiseMachines/whiteNoiseGenerator.php).
 
 ## Features
 
@@ -14,7 +14,8 @@ The White Noise Generator is a versatile web application designed to produce whi
 - Adjustable frequency bands for detailed sound customization.
 - Smooth fade-in and fade-out effects for a pleasant audio experience.
 - User-defined presets for specific needs such as speech masking, traffic noise reduction, workplace concentration, and relaxation.
-- Ability to save and load custom settings for repeated use.
+- Ability to save, load, and delete custom settings for repeated use.
+- Enhanced user control with the addition of a feature to save and manage personal presets.
 
 ## Usage Instructions
 
@@ -22,8 +23,10 @@ The White Noise Generator is a versatile web application designed to produce whi
 2. Choose your desired noise type (white, pink, or brown) using the radio buttons.
 3. Customize the sound using the frequency band sliders.
 4. Start the noise generation by clicking "Initialize Audio."
-5. Utilize the preset buttons for specific scenarios or fine-tune your settings.
-6. Stop the noise generation smoothly by clicking "Stop Audio."
+5. Utilize the preset buttons for specific scenarios or create your own custom settings.
+6. Save your custom settings as presets for future use.
+7. Load or delete saved presets as needed.
+8. Stop the noise generation smoothly by clicking "Stop Audio."
 
 ## Technical Details
 
@@ -32,6 +35,7 @@ The White Noise Generator is a versatile web application designed to produce whi
 - Features a script processor node for dynamic noise generation.
 - Gain nodes for precise control of different frequency bands.
 - NoUiSlider for interactive and responsive sliders.
+- Local Storage for saving and retrieving user-defined presets.
 
 ### Core Functions
 
@@ -40,6 +44,7 @@ The White Noise Generator is a versatile web application designed to produce whi
 - `generateWhiteNoise`, `generatePinkNoise`, `generateBrownNoise`: Functions for different noise types.
 - `stopNoise`: Fades out and stops noise generation.
 - `toggleAudio`: Toggles the state of audio playback.
+- `savePreset`, `loadPresetOptions`, `deletePreset`: Functions for managing user-defined presets.
 
 ### Interaction Flow of the White Noise Generator Application
 
@@ -74,7 +79,6 @@ sequenceDiagram
     WebAudioAPI-->>NoiseProcessor: Stop Noise Generation
     NoiseProcessor->>AudioContext: Disconnect and Cleanup
     AudioContext-->>UI: Audio Stopped
-
 ```
 
 ## Browser Compatibility
