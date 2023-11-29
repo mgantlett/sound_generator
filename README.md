@@ -1,6 +1,6 @@
 # White Noise Generator
 
-![White Noise Generator](image.png)
+[![White Noise Generator](image.png)](https://mgantlett.github.io/sound_generator/noise_generator.html)
 [Noise Generator HTML File](https://mgantlett.github.io/sound_generator/noise_generator.html)
 
 ## Overview
