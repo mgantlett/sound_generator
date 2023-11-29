@@ -114,7 +114,7 @@
 
         button:hover,
         button:focus {
-            
+
             background-color: #28a745;
             /* A distinct color for the primary action */
             border-color: #218838;
@@ -215,7 +215,7 @@
     <button onclick="maskTrafficNoise()">Mask Traffic Noise</button>
     <button onclick="workplaceConcentration()">Workplace Concentration</button>
     <button onclick="relaxationAndMeditation()">Relaxation and Meditation</button>
-    
+
 
     <script src="https://cdn.jsdelivr.net/npm/nouislider/distribute/nouislider.min.js"></script>
 
@@ -252,42 +252,42 @@
         });
 
 
-// Helper function to reset all bands to zero
-function resetAllBandsToZero() {
-    for (var i = 0; i < frequencyBands.length; i++) {
-        setSliderValue(i, 0);
-    }
-}
+        // Helper function to reset all bands to zero
+        function resetAllBandsToZero() {
+            for (var i = 0; i < frequencyBands.length; i++) {
+                setSliderValue(i, 0);
+            }
+        }
 
-function maskSpeech() {
-    resetAllBandsToZero();
-    setSliderValue(4, 0.8); // Masks 1000-2000 Hz
-    setSliderValue(5, 0.8); // Masks 2000-4000 Hz
-    saveSettings();
-}
+        function maskSpeech() {
+            resetAllBandsToZero();
+            setSliderValue(4, 0.8); // Masks 1000-2000 Hz
+            setSliderValue(5, 0.8); // Masks 2000-4000 Hz
+            saveSettings();
+        }
 
-function maskTrafficNoise() {
-    resetAllBandsToZero();
-    setSliderValue(0, 0.8); // Masks 20-250 Hz
-    setSliderValue(3, 0.6); // Masks 500-1000 Hz
-    saveSettings();
-}
+        function maskTrafficNoise() {
+            resetAllBandsToZero();
+            setSliderValue(0, 0.8); // Masks 20-250 Hz
+            setSliderValue(3, 0.6); // Masks 500-1000 Hz
+            saveSettings();
+        }
 
-function workplaceConcentration() {
-    resetAllBandsToZero();
-    setSliderValue(2, 0.7); // Masks 250-500 Hz
-    setSliderValue(4, 0.7); // Masks 1000-2000 Hz
-    saveSettings();
-}
+        function workplaceConcentration() {
+            resetAllBandsToZero();
+            setSliderValue(2, 0.7); // Masks 250-500 Hz
+            setSliderValue(4, 0.7); // Masks 1000-2000 Hz
+            saveSettings();
+        }
 
-function relaxationAndMeditation() {
-    resetAllBandsToZero();
-    setSliderValue(0, 0.6); // Low-frequency emphasis for relaxation
-    setSliderValue(1, 0.4); // Slight masking at 39-79 Hz
-    saveSettings();
-}
+        function relaxationAndMeditation() {
+            resetAllBandsToZero();
+            setSliderValue(0, 0.6); // Low-frequency emphasis for relaxation
+            setSliderValue(1, 0.4); // Slight masking at 39-79 Hz
+            saveSettings();
+        }
 
-// Ensure these functions are correctly integrated with the rest of your JavaScript code
+        // Ensure these functions are correctly integrated with the rest of your JavaScript code
 
 
 
