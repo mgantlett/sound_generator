@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>White Noise Generator with Filters and Controls v0.6.1</title>
+    <link href="https://cdn.jsdelivr.net/npm/nouislider/distribute/nouislider.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #000;
+            color: #fff;
+            font-family: monospace;
+            text-align: center;
+            margin: 0;
+            padding: 30px;
+        }
+
+        #controls {
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: nowrap;
+            padding-bottom: 15px;
+        }
+
+        .slider-container {
+            height: 200px;
+            margin-top: 10px;
+        }
+
+        .slider-wrapper {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-top: 20px;
+            padding-bottom: 30px;
+            min-width: 105px;
+            border: 1px solid #333;
+        }
+
+        .slider-wrapper label {
+            align-self: flex-start;
+            text-align: center;
+            width: 100%;
+            margin-bottom: 5px;
+            order: -1;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .noUi-base {
+            height: 100%;
+            width: 100%;
+            background-color: darkgrey;
+        }
+
+        .noUi-marker {
+            opacity: 0.6;
+        }
+
+        .noUi-handle {
+            cursor: pointer;
+            border: 2px solid #333;
+            box-shadow: 0 0 5px 0 rgba(0, 0, 0, 0.6);
+            background-color: #bdbdbd;
+            border-radius: 8px;
+        }
+
+        .noUi-tooltip {
+            padding: 1px;
+            left: 100%;
+            top: -10px;
+            transform: translate(10px, -50%);
+        }
+
+        .noUi-value {
+            display: none;
+        }
+
+        button {
+            font-size: 1em;
+            min-width: 175px;
+            /* Prevent buttons from wrapping by setting a minimum width */
+
+            padding: 10px 20px;
+            border: 2px solid transparent;
+            /* Keep borders transparent by default */
+            border-radius: 4px;
+            margin: 5px;
+            /* Uniform margin for all sides */
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: #fff;
+            background-color: #333;
+            /* Dark background for the default state */
+            box-sizing: border-box;
+            /* Include padding and borders in the width and height */
+            /* Define a consistent width for all buttons to prevent size change */
+            width: 150px;
+            /* Adjust this width to fit your design */
+            text-align: center;
+            /* Center the text inside the button */
+            white-space: nowrap;
+            /* Prevent text inside buttons from wrapping */
+            overflow: hidden;
+            /* Hide overflow */
+            text-overflow: ellipsis;
+            /* Add an ellipsis if text is too long */
+            margin: 5px 5px;
+            /* Ensure there's space between buttons */
+            border: 1px solid #7f7c7c;
+
+        }
+
+        button:hover,
+        button:focus {
+            
+            background-color: #28a745;
+            /* A distinct color for the primary action */
+            border-color: #218838;
+        }
+
+        button:disabled {
+            background-color: #555;
+            /* Disabled state has a different background */
+            color: #aaa;
+            /* Disabled text color */
+            cursor: not-allowed;
+            /* The cursor indicates the button is not clickable */
+        }
+
+        /* Custom radio button styles */
+        .radio-input {
+            display: none;
+            /* Hide the default radio button */
+        }
+
+        .radio-label {
+            display: inline-block;
+            background-color: #3f3d3d;
+            /* Light background for labels */
+            padding: 10px 20px;
+            /* Padding to increase the clickable area */
+            font-family: Arial, sans-serif;
+            border: 1px solid #7f7c7c;
+            /* Light border for the label */
+            border-radius: 4px;
+            margin-right: 5px;
+            margin-bottom: 7px;
+            /* Space between labels */
+            cursor: pointer;
+            /* Set the width to match the buttons and prevent size change */
+            width: 150px;
+            /* Adjust this width to fit your design */
+            text-align: center;
+            /* Center the text inside the label */
+            box-sizing: border-box;
+            /* Include padding and borders in the width and height */
+        }
+
+        .radio-input:checked+.radio-label {
+            background-color: #007bff;
+            /* Highlight color for checked state */
+            color: white;
+            border-color: #0056b3;
+        }
+
+        .radio-label:hover {
+            background-color: #727777;
+            /* Hover state for labels */
+        }
+
+        /* Initialize Audio button styles */
+        #audioButton {
+            background-color: #28a745;
+            /* A distinct color for the primary action */
+            border-color: #218838;
+        }
+
+        #audioButton:hover,
+        #audioButton:focus {
+            background-color: #218838;
+            /* Darken the button on hover/focus */
+            border-color: #1e7e34;
+        }
+
+        .value-indicator {
+            margin-bottom: 10px;
+        }
+    </style>
+
+</head>
+
+<body>
+    <div>
+        <input type="radio" id="whiteNoise" name="noiseType" value="white" class="radio-input" checked>
+        <label for="whiteNoise" class="radio-label">White Noise</label>
+
+        <input type="radio" id="pinkNoise" name="noiseType" value="pink" class="radio-input">
+        <label for="pinkNoise" class="radio-label">Pink Noise</label>
+
+        <input type="radio" id="brownNoise" name="noiseType" value="brown" class="radio-input">
+        <label for="brownNoise" class="radio-label">Brown Noise</label>
+    </div>
+    <br>
+    <div id="controls"></div>
+
+    <button id="audioButton" onclick="toggleAudio()">Initialize Audio</button>
+    <button onclick="resetBands(0)">Reset Bands to 0</button>
+    <button onclick="resetBands(0.5)">Center Bands</button>
+    <button onclick="adjustBands(-0.1)">Decrease All</button>
+    <button onclick="adjustBands(0.1)">Increase All</button>
+    <br>
+    <button onclick="maskSpeech()">Mask Speech</button>
+    <button onclick="maskTrafficNoise()">Mask Traffic Noise</button>
+    <button onclick="workplaceConcentration()">Workplace Concentration</button>
+    <button onclick="relaxationAndMeditation()">Relaxation and Meditation</button>
+    
+
+    <script src="https://cdn.jsdelivr.net/npm/nouislider/distribute/nouislider.min.js"></script>
+
+    <script>
+        var context;
+        var noiseProcessor, gainNodes = [], isPlaying = false;
+        var currentNoiseType = 'white';
+        var frequencyBands = [
+            [20, 39], [39, 79], [79, 158], [158, 316], [316, 632],
+            [632, 1261], [1261, 2517], [2517, 5023], [5023, 10023], [10023, 20000]
+        ];
+        var settings = JSON.parse(localStorage.getItem('noiseSettings')) || { white: [], pink: [], brown: [] };
+        var colors = [
+            "#8B0000", // Deep Red
+            "#FF4500", // Red-Orange
+            "#FFA500", // Orange
+            "#FFD700", // Gold-Yellow
+            "#FFFF00", // Light Yellow
+            "#ADFF2F", // Light Green
+            "#7FFFD4", // Aquamarine
+            "#87CEEB", // Sky Blue
+            "#4169E1", // Royal Blue
+            "#8A2BE2"  // Violet
+        ];
+
+        document.querySelectorAll('input[name="noiseType"]').forEach(function (radio) {
+            radio.addEventListener('change', function () {
+                currentNoiseType = this.value;
+                loadSettings();
+                if (isPlaying) {
+                    playNoise();
+                }
+            });
+        });
+
+
+// Helper function to reset all bands to zero
+function resetAllBandsToZero() {
+    for (var i = 0; i < frequencyBands.length; i++) {
+        setSliderValue(i, 0);
+    }
+}
+
+function maskSpeech() {
+    resetAllBandsToZero();
+    setSliderValue(4, 0.8); // Masks 1000-2000 Hz
+    setSliderValue(5, 0.8); // Masks 2000-4000 Hz
+    saveSettings();
+}
+
+function maskTrafficNoise() {
+    resetAllBandsToZero();
+    setSliderValue(0, 0.8); // Masks 20-250 Hz
+    setSliderValue(3, 0.6); // Masks 500-1000 Hz
+    saveSettings();
+}
+
+function workplaceConcentration() {
+    resetAllBandsToZero();
+    setSliderValue(2, 0.7); // Masks 250-500 Hz
+    setSliderValue(4, 0.7); // Masks 1000-2000 Hz
+    saveSettings();
+}
+
+function relaxationAndMeditation() {
+    resetAllBandsToZero();
+    setSliderValue(0, 0.6); // Low-frequency emphasis for relaxation
+    setSliderValue(1, 0.4); // Slight masking at 39-79 Hz
+    saveSettings();
+}
+
+// Ensure these functions are correctly integrated with the rest of your JavaScript code
+
+
+
+
+        function resetBands(value) {
+            for (var i = 0; i < frequencyBands.length; i++) {
+                setSliderValue(i, value);
+            }
+            saveSettings();
+        }
+
+        function adjustBands(delta) {
+            for (var i = 0; i < frequencyBands.length; i++) {
+                var currentValue = gainNodes[i] ? gainNodes[i].gain.value : 0.5;
+                setSliderValue(i, Math.max(0, Math.min(1, currentValue + delta)));
+            }
+            saveSettings();
+        }
+        function setSliderValue(index, value) {
+            var sliderElement = document.getElementById('slider' + index);
+            if (sliderElement && sliderElement.noUiSlider) {
+                sliderElement.noUiSlider.set(value); // Set the value without removing the event listener
+            }
+        }
+
+
+        function noUiSliderUpdateHandler(index) {
+            return function (values, handle) {
+                var value = parseFloat(values[handle]);
+                if (gainNodes[index]) {
+                    gainNodes[index].gain.value = value;
+                }
+            };
+        }
+
+        frequencyBands.forEach(function (band, index) {
+            // Container for both the label and the slider
+            var sliderWrapper = document.createElement('div');
+            sliderWrapper.className = 'slider-wrapper';
+            sliderWrapper.style.textAlign = 'center'; // Center align the label text
+
+            // Create a label for each frequency band
+            var label = document.createElement('label');
+            label.innerHTML = band[0] + '-' + band[1] + 'Hz';
+            label.style.color = colors[index];
+
+            // Append the label to the wrapper
+            sliderWrapper.appendChild(label);
+
+            // Create the value indicator element
+            var valueIndicator = document.createElement('span');
+            valueIndicator.id = 'value-indicator-' + index;
+            valueIndicator.className = 'value-indicator';
+            valueIndicator.textContent = '0.00'; // Default value
+            valueIndicator.style.color = colors[index];
+            sliderWrapper.appendChild(valueIndicator);
+
+            // Create the slider container and append it to the wrapper
+            var container = document.createElement('div');
+            container.className = 'slider-container';
+            container.id = 'slider' + index;
+            sliderWrapper.appendChild(container);
+
+            // Append the whole wrapper to the controls container
+            document.getElementById('controls').appendChild(sliderWrapper);
+
+            noUiSlider.create(container, {
+                start: settings[currentNoiseType][index] !== undefined ? settings[currentNoiseType][index] : 0.5,
+                orientation: 'vertical',
+                direction: 'rtl',
+                range: {
+                    'min': 0,
+                    'max': 1
+                },
+                pips: {
+                    mode: 'steps',
+                    density: 5, // Adjust density for more or fewer tick marks
+
+                },
+                connect: [true, false], // Color the lower part of the slider
+                tooltips: false, // Enable tooltips to display the current value
+                format: {
+                    to: function (value) {
+                        return value.toFixed(2);
+                    },
+                    from: function (value) {
+                        return Number(value);
+                    }
+                }
+            });
+
+            // Set the color of the entire slider track
+            container.noUiSlider.on('update', function (values, handle, unencoded, isTap, positions) {
+                var value = parseFloat(values[handle]);
+                valueIndicator.textContent = value.toFixed(2);
+
+                if (gainNodes[index]) {
+                    gainNodes[index].gain.value = value;
+                }
+                var connectBar = this.target.querySelector('.noUi-connect');
+                var base = this.target.querySelector('.noUi-base');
+
+                if (connectBar) {
+                    connectBar.style.backgroundColor = colors[index]; // This sets the "used" portion
+                }
+            });
+
+            // Save settings when the slider value changes
+            container.noUiSlider.on('change', function (values, handle) {
+                saveSettings();
+            });
+        });
+
+        function playNoise() {
+            if (!noiseProcessor || noiseProcessor.context.state === 'closed') {
+                noiseProcessor = context.createScriptProcessor(4096, 1, 1);
+            }
+            noiseProcessor.onaudioprocess = function (e) {
+                var output = e.outputBuffer.getChannelData(0);
+                for (var i = 0; i < output.length; i++) {
+                    if (currentNoiseType === 'white') {
+                        output[i] = generateWhiteNoise();
+                    } else if (currentNoiseType === 'pink') {
+                        output[i] = generatePinkNoise(i);
+                    } else if (currentNoiseType === 'brown') {
+                        output[i] = generateBrownNoise(i);
+                    }
+                }
+            };
+
+            setupGainNodes();
+        }
+
+        function setupGainNodes() {
+            gainNodes.forEach(function (gainNode) {
+                gainNode.disconnect();
+            });
+            gainNodes = [];
+
+            frequencyBands.forEach(function (band, index) {
+                var filter = createBandpassFilter(band[0], band[1]);
+                var gainNode = context.createGain();
+                gainNodes[index] = gainNode;
+
+                noiseProcessor.connect(filter);
+                filter.connect(gainNode);
+                gainNode.connect(context.destination);
+
+                var savedValue = settings[currentNoiseType][index];
+                gainNode.gain.value = savedValue !== undefined ? parseFloat(savedValue) : 0.5;
+            });
+        }
+
+        function generateWhiteNoise() {
+            return Math.random() * 2 - 1;
+        }
+        var b0 = 0, b1 = 0, b2 = 0;
+
+        function generatePinkNoise(index) {
+            // This is a simple low-pass filter to approximate pink noise
+            var white = generateWhiteNoise();
+            b0 = 0.99765 * b0 + white * 0.0990460;
+            b1 = 0.96300 * b1 + white * 0.2965164;
+            b2 = 0.57000 * b2 + white * 1.0526913;
+            var pink = b0 + b1 + b2 + white * 0.1848;
+            return pink * 0.1; // This factor controls the overall energy of the signal
+        }
+        var lastOut = 0.0;
+
+        function generateBrownNoise() {
+            var white = generateWhiteNoise();
+            // Integrate the white noise to get brown noise
+            lastOut = (lastOut + (0.02 * white)) / 1.02;
+            // Clamp the output to -1 to 1 to prevent it from wandering too far from zero
+            lastOut = lastOut > 1 ? 1 : lastOut < -1 ? -1 : lastOut;
+            return lastOut;
+        }
+
+        function stopNoise() {
+            if (noiseProcessor) {
+                noiseProcessor.disconnect();
+                noiseProcessor = null;
+                gainNodes.forEach(function (gainNode) {
+                    gainNode.disconnect();
+                });
+                gainNodes = [];
+            }
+        }
+
+        function toggleAudio() {
+            if (!context) {
+                context = new AudioContext();
+            }
+
+            var buttons = document.querySelectorAll('button:not(#audioButton)');
+            if (!isPlaying) {
+                playNoise();
+                document.getElementById("audioButton").innerText = "Stop Audio";
+                isPlaying = true;
+
+                // buttons.forEach(function (button) {
+                //     button.disabled = false;
+                // });
+            } else {
+                stopNoise();
+                document.getElementById("audioButton").innerText = "Initialize Audio";
+                isPlaying = false;
+
+                // buttons.forEach(function (button) {
+                //     button.disabled = true;
+                // });
+            }
+        }
+
+        function saveSettings() {
+            var currentSettings = settings[currentNoiseType] || [];
+            frequencyBands.forEach(function (_, index) {
+                var sliderElement = document.getElementById('slider' + index);
+                if (sliderElement && sliderElement.noUiSlider) {
+                    currentSettings[index] = sliderElement.noUiSlider.get();
+                }
+            });
+            settings[currentNoiseType] = currentSettings;
+            localStorage.setItem('noiseSettings', JSON.stringify(settings));
+        }
+
+        function loadSettings() {
+            var savedSettings = settings[currentNoiseType];
+            if (savedSettings) {
+                savedSettings.forEach(function (value, index) {
+                    var sliderElement = document.getElementById('slider' + index);
+                    if (sliderElement && sliderElement.noUiSlider) {
+                        sliderElement.noUiSlider.set(value);
+                    }
+                });
+            }
+        }
+
+        function createBandpassFilter(lowFreq, highFreq) {
+            var filter = context.createBiquadFilter();
+            filter.type = 'bandpass';
+            filter.frequency.value = (lowFreq + highFreq) / 2;
+            filter.Q.value = filter.frequency.value / (highFreq - lowFreq);
+            return filter;
+        }
+
+    </script>
+</body>
+
+</html>
