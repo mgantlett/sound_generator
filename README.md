@@ -1,7 +1,7 @@
 # White Noise Generator
 
 ![White Noise Generator](image.png)
-[Noise Generator HTML File](noise_generator.html)
+[Noise Generator HTML File](https://mgantlett.github.io/sound_generator/noise_generator.html)
 
 ## Overview
 The White Noise Generator is a versatile web application designed to produce white, pink, and brown noise. It utilizes the Web Audio API for advanced audio processing and is compatible with 7.1 surround sound systems. This application is user-friendly, with a focus on customizable audio experiences and seamless user interaction.
