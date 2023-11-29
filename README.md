@@ -47,7 +47,7 @@ The White Noise Generator is a versatile web application designed to produce whi
 - `savePreset`, `loadPresetOptions`, `deletePreset`: Functions for managing user-defined presets.
 
 ### Interaction Flow of the White Noise Generator Application
-
+ 
 ```mermaid
 sequenceDiagram
     participant User
