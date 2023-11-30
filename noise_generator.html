@@ -16,8 +16,9 @@
 
         #controls {
             display: flex;
-    flex-wrap: wrap;
-    justify-content: space-around; /* Adjust as needed */
+            flex-wrap: wrap;
+            justify-content: space-around;
+            /* Adjust as needed */
             padding-bottom: 15px;
         }
 
@@ -27,9 +28,12 @@
         }
 
         .slider-wrapper {
-            flex: 1 1 20%; /* Adjust the 20% to control how many sliders per row */
-    margin: 5px; /* Adjust spacing between sliders */
-    max-width: 100px; /* Optional: to prevent sliders from getting too wide */
+            flex: 1 1 20%;
+            /* Adjust the 20% to control how many sliders per row */
+            margin: 5px;
+            /* Adjust spacing between sliders */
+            max-width: 100px;
+            /* Optional: to prevent sliders from getting too wide */
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -166,7 +170,39 @@
             margin-right: 5px;
         }
 
+        @media only screen and (max-width: 500px) {
+            body {
+                padding: 10px;
+                /* Reduced padding */
+            }
 
+            .slider-wrapper {
+                flex: 1 1 100%;
+                /* Full width for each slider */
+                max-width: none;
+                /* Allows slider to expand */
+            }
+
+            button,
+            .radio-label,
+            #presetSelector {
+                font-size: 1.2em;
+                /* Larger font size for readability */
+                padding: 12px 25px;
+                /* Larger buttons for easier tapping */
+                min-width: 100px;
+                /* Adjust as needed */
+            }
+
+            .radio-label {
+                width: auto;
+                /* Adjust width to content */
+                margin: 5px;
+                /* Reduced margin */
+            }
+
+            /* Add any other adjustments here */
+        }
     </style>
 </head>
 
@@ -213,9 +249,21 @@
         ];
         var settings = JSON.parse(localStorage.getItem('noiseSettings')) || { white: [], pink: [], brown: [] };
         var colors = [
-            "#8B0000", "#FF4500", "#FFA500", "#FFD700", "#FFFF00",
-            "#ADFF2F", "#7FFFD4", "#87CEEB", "#4169E1", "#8A2BE2"
+            "#A52A2A", // Deep Red: 20 Hz to 2,000 Hz
+            "#FF8C00", // Dark Orange: 2,000 Hz to 4,000 Hz
+            "#FFD700", // Gold: 4,000 Hz to 6,000 Hz
+            "#FFFF00", // Yellow: 6,000 Hz to 8,000 Hz
+            "#9ACD32", // Yellow-Green: 8,000 Hz to 10,000 Hz
+            "#00FF00", // Green: 10,000 Hz to 12,000 Hz
+            "#40E0D0", // Turquoise: 12,000 Hz to 14,000 Hz
+            "#1E90FF", // Dodger Blue: 14,000 Hz to 16,000 Hz
+            "#0000FF", // Blue: 16,000 Hz to 18,000 Hz
+            "#8A2BE2"  // Blue-Violet: 18,000 Hz to 20,000 Hz
         ];
+
+
+
+
 
         // Event listeners for radio buttons to change the noise type
         document.querySelectorAll('input[name="noiseType"]').forEach(function (radio) {
